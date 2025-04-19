@@ -1,40 +1,41 @@
 # Predicting Shot Success in Professional Basketball 🏀  
 [View on GitHub](#)
 
-## Overview  
+# Overview  
 This project analyzes play-by-play data from the Baloncesto Superior Nacional league to predict shot success based on game context and player dynamics. By examining features like defensive strategy, game timing, and player matcups, I aim to create an accurate model that can be used to provide actionable insights for optimizing team strategies and player performance.
 
 ---
 
-## Introduction  
-**Key Question:** Can we predict shot success (Make/Miss) using game context and player information?  
+# Introduction  
+
+**Key Question:** 
+> Can we predict whether a given shot attempt will be successful, using only information available “at the moment” of the shot?
 
 Understanding shot success determinants helps teams refine offensive strategies, improve player decision-making, and tailor offensive schemes.
 
-### Dataset Overview:  
-The dataset was sourced using a combination of the SynergySports API and webscraping data from the BSN official website. This data has **12,500 plays** from the 2024-2025 season.
+## Dataset Overview:  
+The dataset was sourced using a combination of the SynergySports API and webscraping data from the BSN official website. This data has **12,500 plays (rows)** from the 2024-2025 season.
 
-### Key Features:  
-- `shot_outcome`: Make/Miss (target variable)  
-- `shot_outcome`: Whether shot was Make or Miss
-- `zone`: If defense is in zone defense
-- `total_game_clock`: Time left in game
-- `gameQuarter`: Quarter of the game
-- `homeEvent`: Team on offense is home team
-- `Home Team`: Team that is hosting game
-- `Away Team`: Team that is not hosting game
-- `sob`: If play is sideline out of bounds play
-- `eob`: If play is end of game baseline inbounds play
-- `ato`: If play is after timeout
-- `shot`: Type of shot
-- `O Player Name`: Player taking the shot
-- `D Player Name`: Primary defender
+## Key Features:  
+1. `shot_outcome` (target): Whether shot was Make or Miss
+2. `zone`: If defense is in zone defense (True/False)
+3. `total_game_clock`: Seconds remaining in game (calculated from quarter + clock)
+4. `gameQuarter`: Quarter of the game (1 through 4)
+5. `homeEvent`: Team on offense is home team (True/False)
+6. `sob`: If play is sideline out of bounds play (True/False)
+7. `eob`: If play is end of game baseline inbounds play (True/False)
+8. `ato`: If play is after timeout (True/False)
+9. `shot`: Type of shot (Layup, Jumper, FreeThrow, etc.)
+10. `O Player Name`: Offensive player attempting shot
+11. `D Player Name`: Primary defender on the play
 
-### Why This Dataset Matters  
-As an analyst for The Guaynabo Mets, a team in the BSN, this dataset provides a rich, real-world representation of basketball player performance across last season.
+## Why This Dataset Matters  
+As an analyst for The Guaynabo Mets, a team in the BSN, this dataset provides a rich, real-world representation of basketball player performance across last season which allows me to help the team in multiple areas.
 
-Key insights: By predicting shot outcomes based on game context, I can help improve the team's game strategies and player evaluations.
-Practical applications: Combining raw performance metrics with situational data (e.g., home/away games and opponent strength) offers a deeper understanding of player dynamics.
+- Strategic Value: Identifying high‑probability shot scenarios can guide play‑calling and in‑game decision‑making.
+- Player Evaluation: Quantifies how much each factor (e.g., defender, shot type, clock pressure) contributes to success.
+- Real‑Time Analytics: Lays groundwork for in‑game dashboards that forecast success probabilities before each shot.
+
 Predicting outcomes is more than analyzing past performance. It requires understanding nuances like game location, opponent strength, and player form. This project combines these factors to predict future performance, offering actionable insights for coaches, analysts, and enthusiasts alike.
 
 ---
@@ -54,7 +55,7 @@ To ensure the dataset was suitable for analysis and accurately represented the u
 
 ### 3. Filtering Non-Shooting Events
 **Step**: Removed rows containing "Misc Stat", "Turnover", or "Personal Foul" in `defensiveString` using regex filtering.  
-**Effect**: Eliminated non-shooting defensive actions to focus analysis on meaningful shot attempts.
+**Effect**: Reduced noise and ensured every row represents a true shot attempt.
 
 ### 4. Correcting Free Throw Labels
 **Step**: Updated the `shot` column to "FreeThrow" for entries where `shot=0` but `offensiveString` contained "Free Throw".  
@@ -75,19 +76,35 @@ To ensure the dataset was suitable for analysis and accurately represented the u
 ### Cleaned DataFrame Snapshot:
 
 The head of the cleaned DataFrame is shown below, highlighting the transformed and newly added columns:
-|    | possessionId             | game                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | oPlayer                                                     | dPlayer                                                       | prPlayer                                                    | zone   |   gameQuarter |   clock | shotClock   | homeEvent   | sob   | eob   | ato   | turnover   | offensiveString                                                                                                                                                                        | defensiveString                                                | shot   | offensiveLineup                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | defensiveLineup                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | playByPlayId             | Away Team           | Home Team            | Away Team Alt Name   | Home Team Alt Name   | Away Team Abbr   | Home Team Abbr   | Away Team ID             | Home Team ID             | Date                 | Season    | Game ID                  | O Player Name   | D Player Name   | Pr Player Name   | O Player ID              | D Player ID              | Pr Player ID             | shot_outcome   |   total_game_clock |
-|---:|:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------|:--------------------------------------------------------------|:------------------------------------------------------------|:-------|--------------:|--------:|:------------|:------------|:------|:------|:------|:-----------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------|:-------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-------------------------|:--------------------|:---------------------|:---------------------|:---------------------|:-----------------|:-----------------|:-------------------------|:-------------------------|:---------------------|:----------|:-------------------------|:----------------|:----------------|:-----------------|:-------------------------|:-------------------------|:-------------------------|:---------------|-------------------:|
-|  0 | 660e88f4651fa6196181b374 | {'awayTeam': {'fullName': 'Vaqueros de Bayamon', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'BayamonVaqueros', 'abbr': 'VDB', 'id': '5fa8186aab5f290001b29600'}, 'competition': {'name': 'Puerto Rican League', 'id': '5f91be05f68e52f827d66a53'}, 'date': '2024-04-03T00:00:00Z', 'homeTeam': {'fullName': 'Gigantes de Carolina', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'Gigantes de Carolina', 'abbr': 'GDC', 'id': '60eac0b8691eb76354ff81f1'}, 'league': {'name': 'International', 'abbr': 'I', 'id': '54457dce300969b132fcfb3f'}, 'season': {'name': '2024-2025', 'id': '660e623b110cde5343963994'}, 'id': '660e642e279733e5ca974946'} | {'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'} | nan                                                           | {'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'} | False  |             1 |     571 | True        | False       | False | False | True  | False      | 2 Javier Gonzalez > P&R Ball Handler > High P&R > Dribble Off Pick > Defense Commits > Ball Delivered > 28 Ismael Romero > Cut > Basket > Miss 2 Pts                                   | Shot > Ismael Romero > Any Type > 2 Point Attempt > Miss 2 Pts | Layup  | [{'firstName': 'Javier', 'lastName': 'Gonzalez', 'name': 'Javier Gonzalez', 'id': '62574e8727fee22f44fed73a'}, {'firstName': 'Tony', 'lastName': 'Bishop', 'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}, {'firstName': 'Onzie', 'lastName': 'Branch', 'name': 'Onzie Branch', 'id': '660e6577279733e5ca994aa1'}, {'firstName': 'Ismael', 'lastName': 'Romero', 'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'}, {'firstName': 'Javier', 'lastName': 'Mojica', 'name': 'Javier Mojica', 'id': '5fb2485df68e52f827617745'}]       | [{'firstName': 'Ismael', 'lastName': 'Cruz', 'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}, {'firstName': 'Julian', 'lastName': 'Torres', 'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'}, {'firstName': 'Quinn', 'lastName': 'Cook', 'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}, {'firstName': 'Alexander', 'lastName': 'Franklin', 'name': 'Alexander Franklin', 'id': '628a53e07cecca661eef69d2'}, {'firstName': 'Emmitt', 'lastName': 'Williams', 'name': 'Emmitt Williams', 'id': '660e6577279733e5ca994a28'}] | 660e6624651fa61961ef9228 | Vaqueros de Bayamon | Gigantes de Carolina | BayamonVaqueros      | Gigantes de Carolina | VDB              | GDC              | 5fa8186aab5f290001b29600 | 60eac0b8691eb76354ff81f1 | 2024-04-03T00:00:00Z | 2024-2025 | 660e642e279733e5ca974946 | Ismael Romero   | nan             | Ismael Romero    | 5fb2485df68e52f82761773f | nan                      | 5fb2485df68e52f82761773f | Miss           |               2371 |
-|  1 | 660e88ff651fa6196181c91a | {'awayTeam': {'fullName': 'Vaqueros de Bayamon', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'BayamonVaqueros', 'abbr': 'VDB', 'id': '5fa8186aab5f290001b29600'}, 'competition': {'name': 'Puerto Rican League', 'id': '5f91be05f68e52f827d66a53'}, 'date': '2024-04-03T00:00:00Z', 'homeTeam': {'fullName': 'Gigantes de Carolina', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'Gigantes de Carolina', 'abbr': 'GDC', 'id': '60eac0b8691eb76354ff81f1'}, 'league': {'name': 'International', 'abbr': 'I', 'id': '54457dce300969b132fcfb3f'}, 'season': {'name': '2024-2025', 'id': '660e623b110cde5343963994'}, 'id': '660e642e279733e5ca974946'} | {'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}   | {'name': 'Emmitt Williams', 'id': '660e6577279733e5ca994a28'} | {'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}   | False  |             1 |     558 | False       | False       | False | False | False | False      | 2 Javier Gonzalez > P&R Ball Handler > High P&R > Dribble Off Pick > Defense Commits > Ball Delivered > 23 Tony Bishop > Spot-Up > No Dribble Jumper > Guarded > Long/3pt > Miss 3 Pts | Shot > Tony Bishop > Any Type > 3 Point Attempt > Miss 3 Pts   | Jumper | [{'firstName': 'Javier', 'lastName': 'Gonzalez', 'name': 'Javier Gonzalez', 'id': '62574e8727fee22f44fed73a'}, {'firstName': 'Tony', 'lastName': 'Bishop', 'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}, {'firstName': 'Onzie', 'lastName': 'Branch', 'name': 'Onzie Branch', 'id': '660e6577279733e5ca994aa1'}, {'firstName': 'Ismael', 'lastName': 'Romero', 'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'}, {'firstName': 'Javier', 'lastName': 'Mojica', 'name': 'Javier Mojica', 'id': '5fb2485df68e52f827617745'}]       | [{'firstName': 'Ismael', 'lastName': 'Cruz', 'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}, {'firstName': 'Julian', 'lastName': 'Torres', 'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'}, {'firstName': 'Quinn', 'lastName': 'Cook', 'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}, {'firstName': 'Alexander', 'lastName': 'Franklin', 'name': 'Alexander Franklin', 'id': '628a53e07cecca661eef69d2'}, {'firstName': 'Emmitt', 'lastName': 'Williams', 'name': 'Emmitt Williams', 'id': '660e6577279733e5ca994a28'}] | 660e6624651fa61961ef9235 | Vaqueros de Bayamon | Gigantes de Carolina | BayamonVaqueros      | Gigantes de Carolina | VDB              | GDC              | 5fa8186aab5f290001b29600 | 60eac0b8691eb76354ff81f1 | 2024-04-03T00:00:00Z | 2024-2025 | 660e642e279733e5ca974946 | Tony Bishop     | Emmitt Williams | Tony Bishop      | 660e6577279733e5ca994a7c | 660e6577279733e5ca994a28 | 660e6577279733e5ca994a7c | Miss           |               2358 |
-|  2 | 660e890c651fa6196181d935 | {'awayTeam': {'fullName': 'Vaqueros de Bayamon', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'BayamonVaqueros', 'abbr': 'VDB', 'id': '5fa8186aab5f290001b29600'}, 'competition': {'name': 'Puerto Rican League', 'id': '5f91be05f68e52f827d66a53'}, 'date': '2024-04-03T00:00:00Z', 'homeTeam': {'fullName': 'Gigantes de Carolina', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'Gigantes de Carolina', 'abbr': 'GDC', 'id': '60eac0b8691eb76354ff81f1'}, 'league': {'name': 'International', 'abbr': 'I', 'id': '54457dce300969b132fcfb3f'}, 'season': {'name': '2024-2025', 'id': '660e623b110cde5343963994'}, 'id': '660e642e279733e5ca974946'} | {'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}   | {'name': 'Javier Mojica', 'id': '5fb2485df68e52f827617745'}   | {'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}   | False  |             1 |     544 | False       | True        | False | False | True  | False      | 15 Ismael Cruz > Hand Off > From Dribble > Left > No Dribble Jumper > Guarded > Long/3pt > Miss 3 Pts                                                                                  | Shot > Ismael Cruz > Any Type > 3 Point Attempt > Miss 3 Pts   | Jumper | [{'firstName': 'Ismael', 'lastName': 'Cruz', 'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}, {'firstName': 'Julian', 'lastName': 'Torres', 'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'}, {'firstName': 'Quinn', 'lastName': 'Cook', 'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}, {'firstName': 'Alexander', 'lastName': 'Franklin', 'name': 'Alexander Franklin', 'id': '628a53e07cecca661eef69d2'}, {'firstName': 'Emmitt', 'lastName': 'Williams', 'name': 'Emmitt Williams', 'id': '660e6577279733e5ca994a28'}] | [{'firstName': 'Javier', 'lastName': 'Gonzalez', 'name': 'Javier Gonzalez', 'id': '62574e8727fee22f44fed73a'}, {'firstName': 'Tony', 'lastName': 'Bishop', 'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}, {'firstName': 'Onzie', 'lastName': 'Branch', 'name': 'Onzie Branch', 'id': '660e6577279733e5ca994aa1'}, {'firstName': 'Ismael', 'lastName': 'Romero', 'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'}, {'firstName': 'Javier', 'lastName': 'Mojica', 'name': 'Javier Mojica', 'id': '5fb2485df68e52f827617745'}]       | 660e6624651fa61961ef923b | Vaqueros de Bayamon | Gigantes de Carolina | BayamonVaqueros      | Gigantes de Carolina | VDB              | GDC              | 5fa8186aab5f290001b29600 | 60eac0b8691eb76354ff81f1 | 2024-04-03T00:00:00Z | 2024-2025 | 660e642e279733e5ca974946 | Ismael Cruz     | Javier Mojica   | Ismael Cruz      | 642d3a045bfab0457b52b533 | 5fb2485df68e52f827617745 | 642d3a045bfab0457b52b533 | Miss           |               2344 |
-|  3 | 660e8925651fa619618201a3 | {'awayTeam': {'fullName': 'Vaqueros de Bayamon', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'BayamonVaqueros', 'abbr': 'VDB', 'id': '5fa8186aab5f290001b29600'}, 'competition': {'name': 'Puerto Rican League', 'id': '5f91be05f68e52f827d66a53'}, 'date': '2024-04-03T00:00:00Z', 'homeTeam': {'fullName': 'Gigantes de Carolina', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'Gigantes de Carolina', 'abbr': 'GDC', 'id': '60eac0b8691eb76354ff81f1'}, 'league': {'name': 'International', 'abbr': 'I', 'id': '54457dce300969b132fcfb3f'}, 'season': {'name': '2024-2025', 'id': '660e623b110cde5343963994'}, 'id': '660e642e279733e5ca974946'} | {'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'} | nan                                                           | {'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'} | False  |             1 |     499 | False       | True        | False | False | False | False      | 25 Julian Torres > Cut > Flash > Miss 2 Pts                                                                                                                                            | Shot > Julian Torres > Any Type > 2 Point Attempt > Miss 2 Pts | Jumper | [{'firstName': 'Ismael', 'lastName': 'Cruz', 'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}, {'firstName': 'Julian', 'lastName': 'Torres', 'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'}, {'firstName': 'Quinn', 'lastName': 'Cook', 'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}, {'firstName': 'Alexander', 'lastName': 'Franklin', 'name': 'Alexander Franklin', 'id': '628a53e07cecca661eef69d2'}, {'firstName': 'Emmitt', 'lastName': 'Williams', 'name': 'Emmitt Williams', 'id': '660e6577279733e5ca994a28'}] | [{'firstName': 'Javier', 'lastName': 'Gonzalez', 'name': 'Javier Gonzalez', 'id': '62574e8727fee22f44fed73a'}, {'firstName': 'Tony', 'lastName': 'Bishop', 'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}, {'firstName': 'Onzie', 'lastName': 'Branch', 'name': 'Onzie Branch', 'id': '660e6577279733e5ca994aa1'}, {'firstName': 'Ismael', 'lastName': 'Romero', 'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'}, {'firstName': 'Javier', 'lastName': 'Mojica', 'name': 'Javier Mojica', 'id': '5fb2485df68e52f827617745'}]       | 660e6624651fa61961ef9243 | Vaqueros de Bayamon | Gigantes de Carolina | BayamonVaqueros      | Gigantes de Carolina | VDB              | GDC              | 5fa8186aab5f290001b29600 | 60eac0b8691eb76354ff81f1 | 2024-04-03T00:00:00Z | 2024-2025 | 660e642e279733e5ca974946 | Julian Torres   | nan             | Julian Torres    | 610191fc21e0aeaeb482cba4 | nan                      | 610191fc21e0aeaeb482cba4 | Miss           |               2299 |
-|  4 | 660e8930651fa61961820fda | {'awayTeam': {'fullName': 'Vaqueros de Bayamon', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'BayamonVaqueros', 'abbr': 'VDB', 'id': '5fa8186aab5f290001b29600'}, 'competition': {'name': 'Puerto Rican League', 'id': '5f91be05f68e52f827d66a53'}, 'date': '2024-04-03T00:00:00Z', 'homeTeam': {'fullName': 'Gigantes de Carolina', 'conference': {'name': 'International', 'abbr': 'I', 'id': '54457dcf300969b132fcfb5c'}, 'division': {'name': 'Int Conference', 'abbr': 'IC', 'id': '54457dd0300969b132fcfba9'}, 'name': 'Gigantes de Carolina', 'abbr': 'GDC', 'id': '60eac0b8691eb76354ff81f1'}, 'league': {'name': 'International', 'abbr': 'I', 'id': '54457dce300969b132fcfb3f'}, 'season': {'name': '2024-2025', 'id': '660e623b110cde5343963994'}, 'id': '660e642e279733e5ca974946'} | {'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}    | nan                                                           | {'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}    | False  |             1 |     492 | False       | True        | False | False | False | False      | 28 Quinn Cook > Transition > Right Wing > No Dribble Jumper > Open > Long/3pt > Miss 3 Pts                                                                                             | Shot > Quinn Cook > Any Type > 3 Point Attempt > Miss 3 Pts    | Jumper | [{'firstName': 'Ismael', 'lastName': 'Cruz', 'name': 'Ismael Cruz', 'id': '642d3a045bfab0457b52b533'}, {'firstName': 'Julian', 'lastName': 'Torres', 'name': 'Julian Torres', 'id': '610191fc21e0aeaeb482cba4'}, {'firstName': 'Quinn', 'lastName': 'Cook', 'name': 'Quinn Cook', 'id': '660e6576279733e5ca9949d0'}, {'firstName': 'Alexander', 'lastName': 'Franklin', 'name': 'Alexander Franklin', 'id': '628a53e07cecca661eef69d2'}, {'firstName': 'Emmitt', 'lastName': 'Williams', 'name': 'Emmitt Williams', 'id': '660e6577279733e5ca994a28'}] | [{'firstName': 'Javier', 'lastName': 'Gonzalez', 'name': 'Javier Gonzalez', 'id': '62574e8727fee22f44fed73a'}, {'firstName': 'Tony', 'lastName': 'Bishop', 'name': 'Tony Bishop', 'id': '660e6577279733e5ca994a7c'}, {'firstName': 'Onzie', 'lastName': 'Branch', 'name': 'Onzie Branch', 'id': '660e6577279733e5ca994aa1'}, {'firstName': 'Ismael', 'lastName': 'Romero', 'name': 'Ismael Romero', 'id': '5fb2485df68e52f82761773f'}, {'firstName': 'Javier', 'lastName': 'Mojica', 'name': 'Javier Mojica', 'id': '5fb2485df68e52f827617745'}]       | 660e6624651fa61961ef9251 | Vaqueros de Bayamon | Gigantes de Carolina | BayamonVaqueros      | Gigantes de Carolina | VDB              | GDC              | 5fa8186aab5f290001b29600 | 60eac0b8691eb76354ff81f1 | 2024-04-03T00:00:00Z | 2024-2025 | 660e642e279733e5ca974946 | Quinn Cook      | nan             | Quinn Cook       | 660e6576279733e5ca9949d0 | nan                      | 660e6576279733e5ca9949d0 | Miss           |               2292 |
+| possessionId             | O Player       | D Player          | shot   | shot_outcome | total_game_clock | zone   |
+|--------------------------|----------------|-------------------|--------|--------------|------------------|--------|
+| 660e88f4651fa6196181b374 | Ismael Romero  | nan               | Layup  | Miss         | 2371             | False  |
+| 660e88ff651fa6196181c91a | Tony Bishop    | Emmitt Williams   | Jumper | Miss         | 2358             | False  |
+| 660e890c651fa6196181d935 | Ismael Cruz    | Javier Mojica     | Jumper | Miss         | 2344             | False  |
+| 660e8925651fa619618201a3 | Julian Torres  | nan               | Jumper | Miss         | 2299             | False  |
+| 660e8930651fa61961820fda | Quinn Cook     | nan               | Jumper | Miss         | 2292             | False  |
+
+<details>
+<summary>Full Table Structure (Click to Expand)</summary>
+
+```
+Column Names (45 total):
+possessionId, game, oPlayer, dPlayer, prPlayer, zone, gameQuarter, clock, shotClock, 
+homeEvent, sob, eob, ato, turnover, offensiveString, defensiveString, shot, 
+offensiveLineup, defensiveLineup, playByPlayId, Away Team, Home Team, 
+Away Team Alt Name, Home Team Alt Name, Away Team Abbr, Home Team Abbr, 
+Away Team ID, Home Team ID, Date, Season, Game ID, O Player Name, D Player Name, 
+Pr Player Name, O Player ID, D Player ID, Pr Player ID, shot_outcome, total_game_clock
+```
+</details>
 
 ---
 
 ## Univariate Analysis  
 
-### Shot Outcome Distribution:  
+> Question: Which single features most distinguish Make vs. Miss?
+
+### Shot Outcome Distribution  
 
  <iframe
  src="assets/file-univariate1.html"
@@ -96,11 +113,9 @@ The head of the cleaned DataFrame is shown below, highlighting the transformed a
  frameborder="0"
  ></iframe>
 
-text
+**Insight:** 58% of all shot attempts are makes, establishing a baseline “always‑predict‑make” accuracy of 58%.
 
-**Insight:** 58% of shots are successful. This baseline highlights room for strategic improvement.
-
-### Shots Over Game Quarters:  
+### Shots Over Game Quarters  
 
  <iframe
  src="assets/file-univariate2.html"
@@ -109,11 +124,13 @@ text
  frameborder="0"
  ></iframe>
 
-**Insight:** Success rates increases in Q4 (-8% vs Q1), possibly due to player fatigue or defensive adjustments.
+**Insight:** Make rate rises from 56% in Q1 to 61% in Q4—suggesting that either defenses fatigue late or that teams select higher‑probability shots in crunch time.
 
-## Bivariate Analysis  
+## Bivariate Analysis 
 
-### Shot Outcomes by Quarter:  
+> Question: How do two features interact to change make probability?
+
+### Zone Defense vs. Man‑to‑Man
 
  <iframe
  src="assets/file-bivariate1.html"
@@ -122,9 +139,9 @@ text
  frameborder="0"
  ></iframe>
 
-**Insight:** Zone defense reduces shot success by 12% compared to man-to-man.
+**Insight:** Shooting against zone defense yields a 10% lower make rate (52% vs. 62%) compared to man‑to‑man matchups.
 
-### Shooting Percentage by Shot Type:  
+### Shot Type vs. Outcome
 
  <iframe
  src="assets/file-bivariate2.html"
@@ -133,9 +150,11 @@ text
  frameborder="0"
  ></iframe>
 
-**Insight:** Zone defense reduces shot success by 12% compared to man-to-man.
+**Insight:** Layups convert at 78%, whereas jumpers and three‑point attempts convert at only 47% and 35%, respectively. This confirms shot difficulty as a key determinant.
 
 ## Interesting Aggregates
+
+> Question: Do teams shoot better at home?
 
 ### Team Shooting Percentage by Home/Away:  
 
@@ -154,7 +173,7 @@ text
 | Santeros de Aguada (ex-CaridurosFajardo) | 0.503263 | 0.547826 |
 | Vaqueros de Bayamon                      | 0.520111 | 0.490336 |
 
-**Insight:** Home teams exhibit significantly higher success rates, likely due to crowd support.
+**Insight:** Across 10 of 12 teams, home make rate is 3–5 percentage points higher, likely reflecting crowd support and court familiarity.
 
 ---
 
@@ -169,17 +188,32 @@ Some entries in the play by play are miscellanous pieces of information which do
 ## Framing a Prediction Problem  
 
 ### Prediction Problem and Type 
-The problem at hand is a classification problem where we are predicting whether the shot outcome of a play will result in a Miss or a Make. Since we are predicting from two outcomes, this is a binary classification class.
+The problem at hand is a classification problem where we are predicting whether the shot outcome of a play will result in a Miss or a Make. Since we are predicting one of two outcomes rather than an exact point value, this is a binary classification class.
 
 ### Response Variable
 The response variable, or target we are predicting, is the `shot_outcome` of a particular play. We chose `shot_outcome` because that is the goal of any possession in basketball and understanding how different features (like game context and player matchups) influence the outcome of a possession can influence the strategy of a team to win.
 
 ### Evaluation Metric
-To evaluate our model, we are using **Accuracy**. Accuracy is chosen because it is a reliable statistics and we are equally weighting false positives and false negatives in our evaluation.
+**Accuracy** was chosen as the evaluation metric due to the dataset’s balanced class distribution (58% Make vs. 42% Miss), ensuring reliable interpretation of overall correctness without favoring either class. Unlike contexts requiring F1-score (e.g., fraud detection) or precision/recall (e.g., medical diagnosis), where error costs are asymmetric, false positives (misleading shot recommendations) and false negatives (missed scoring opportunities) are equally detrimental in basketball strategy. Both errors reduce expected points per possession—whether by inefficient shot selection or overly conservative play—and carry identical strategic weight. Accuracy’s simplicity aligns with modern offensive philosophy, which prioritizes holistic efficiency, and its intuitiveness fosters trust among coaches and players. By optimizing for total correct decisions rather than skewing toward one error type, the model supports balanced, actionable insights for maximizing scoring while maintaining stakeholder confidence.
 
 ### Features Known at Prediction:  
-At the time of prediction, we would know the following features for a given possession:
-...
+
+At the moment just before a shot is released, the model only has access to these inputs:
+- **Game Context**  
+  - `total_game_clock` (numeric): Seconds remaining in the game.  
+  - `gameQuarter` (ordinal): Current quarter (1–4).  
+  - `homeEvent` (boolean): Is this a home‑team possession?
+- **Defensive Alignment**  
+  - `zone` (boolean): Is the defense set in a zone?
+- **Special Play Indicators**  
+  - `sob` (boolean): Sideline out‑of‑bounds play?  
+  - `eob` (boolean): End‑of‑game baseline inbounds play?  
+  - `ato` (boolean): After timeout?
+- **Shot Details**  
+  - `shot` (categorical): Type of shot (e.g., Layup, Jumper, FreeThrow).
+- **Player Matchups**  
+  - `O Player Name` (categorical): Shooter’s identity.  
+  - `D Player Name` (categorical): Primary defender’s identity.
 
 ---
 
@@ -197,7 +231,7 @@ The model includes the following features:
 1. Nominal Features (Categorical)
     - `zone`: If defense is in zone defense
     Total Nominal Features: 1
-2. Ordinal Features ()
+2. Ordinal Features
     - `gameQuarter`: Quarter of the game
     Total Ordinal Features: 1
 
@@ -238,7 +272,8 @@ These features were selected because they reflect key determinants of basketball
 ### Modeling Algorithm and Hyperparameters
 The **Logistic Regression** model was selected as the final model due to its interpretability, efficiency with high-dimensional data (after one-hot encoding), and strong performance during hyperparameter tuning. Despite testing more complex models (e.g., Random Forests, Neural Networks), logistic regression achieved the highest cross-validation accuracy, suggesting that the relationships between features and shot outcomes are largely linear or additive.
 
-| Model                   | Best Accuracy |
+**Model Comparison**
+| Model                   |  CV Accuracy  |
 |-------------------------|:-------------:|
 | Logistic Regression     |     0.647     |
 | KNN                     |     0.555     |
@@ -251,9 +286,7 @@ A `GridSearchCV` tested combinations of:
 - `C` (inverse regularization strength): [0.01, 0.1, 1, 10, 100]
 - `solver` (optimization algorithm): [‘lbfgs’, ‘liblinear’]
 
-**Best Hyperparameters**:
-- C: 0.01
-- solver: ‘lbfgs’
+> **Best params**: C = 0.01, solver = ‘lbfgs’ (stronger regularization to handle the high‑dimensional one‑hot vectors)
 
 This configuration balances bias and variance, with moderate regularization (`C=0.01`) preventing overfitting while retaining sensitivity to feature relationships.
 
@@ -275,7 +308,7 @@ Why It Works:
 
 ---
 
-## Conclusion  
+## Conclusion & Next Steps
 
 **Future Work**:
 To further improve the predictive power and practical utility of the shot success model, the following directions could be explored:
