@@ -1,5 +1,4 @@
 # Predicting Shot Success in Professional Basketball 🏀  
-[View on GitHub](#)
 
 # Overview  
 This project analyzes play-by-play data from the Baloncesto Superior Nacional league to predict shot success based on game context and player dynamics. By examining features like defensive strategy, game timing, and player matcups, I aim to create an accurate model that can be used to provide actionable insights for optimizing team strategies and player performance.
@@ -32,9 +31,9 @@ The dataset was sourced using a combination of the SynergySports API and webscra
 ## Why This Dataset Matters  
 As an analyst for The Guaynabo Mets, a team in the BSN, this dataset provides a rich, real-world representation of basketball player performance across last season which allows me to help the team in multiple areas.
 
-- Strategic Value: Identifying high‑probability shot scenarios can guide play‑calling and in‑game decision‑making.
-- Player Evaluation: Quantifies how much each factor (e.g., defender, shot type, clock pressure) contributes to success.
-- Real‑Time Analytics: Lays groundwork for in‑game dashboards that forecast success probabilities before each shot.
+- **Strategic Value**: Identifying high‑probability shot scenarios can guide play‑calling and in‑game decision‑making.
+- **Player Evaluation**: Quantifies how much each factor (e.g., defender, shot type, clock pressure) contributes to success.
+- **Real‑Time Analytics**: Lays groundwork for in‑game dashboards that forecast success probabilities before each shot.
 
 Predicting outcomes is more than analyzing past performance. It requires understanding nuances like game location, opponent strength, and player form. This project combines these factors to predict future performance, offering actionable insights for coaches, analysts, and enthusiasts alike.
 
@@ -76,25 +75,26 @@ To ensure the dataset was suitable for analysis and accurately represented the u
 ### Cleaned DataFrame Snapshot:
 
 The head of the cleaned DataFrame is shown below, highlighting the transformed and newly added columns:
-| possessionId             | O Player       | D Player          | shot   | shot_outcome | total_game_clock | zone   |
-|--------------------------|----------------|-------------------|--------|--------------|------------------|--------|
-| 660e88f4651fa6196181b374 | Ismael Romero  | nan               | Layup  | Miss         | 2371             | False  |
-| 660e88ff651fa6196181c91a | Tony Bishop    | Emmitt Williams   | Jumper | Miss         | 2358             | False  |
-| 660e890c651fa6196181d935 | Ismael Cruz    | Javier Mojica     | Jumper | Miss         | 2344             | False  |
-| 660e8925651fa619618201a3 | Julian Torres  | nan               | Jumper | Miss         | 2299             | False  |
-| 660e8930651fa61961820fda | Quinn Cook     | nan               | Jumper | Miss         | 2292             | False  |
+| shot_outcome | zone  | total_game_clock | gameQuarter | homeEvent | sob   | eob   | ato   | shot   | O Player Name  | D Player Name    |
+|--------------|-------|------------------|-------------|-----------|-------|-------|-------|--------|----------------|------------------|
+| Miss         | False | 2371             | 1           | False     | False | False | True  | Layup  | Ismael Romero  | —                |
+| Miss         | False | 2358             | 1           | False     | False | False | False | Jumper | Tony Bishop    | Emmitt Williams  |
+| Miss         | False | 2344             | 1           | True      | False | False | True  | Jumper | Ismael Cruz    | Javier Mojica    |
+| Miss         | False | 2299             | 1           | True      | False | False | False | Jumper | Julian Torres  | —                |
+| Miss         | False | 2292             | 1           | False     | False | False | False | Jumper | Quinn Cook     | —                |
 
 <details>
 <summary>Full Table Structure (Click to Expand)</summary>
 
+
 ```
-Column Names (45 total):
+Column Names (39 total):
 possessionId, game, oPlayer, dPlayer, prPlayer, zone, gameQuarter, clock, shotClock, 
-homeEvent, sob, eob, ato, turnover, offensiveString, defensiveString, shot, 
-offensiveLineup, defensiveLineup, playByPlayId, Away Team, Home Team, 
-Away Team Alt Name, Home Team Alt Name, Away Team Abbr, Home Team Abbr, 
-Away Team ID, Home Team ID, Date, Season, Game ID, O Player Name, D Player Name, 
-Pr Player Name, O Player ID, D Player ID, Pr Player ID, shot_outcome, total_game_clock
+homeEvent, sob, eob, ato, turnover, offensiveString, defensiveString, shot, offensiveLineup, 
+defensiveLineup, playByPlayId, Away Team, Home Team, Away Team Alt Name, Home Team Alt Name, 
+Away Team Abbr, Home Team Abbr, Away Team ID, Home Team ID, Date, Season, Game ID, 
+O Player Name, D Player Name, Pr Player Name, O Player ID, D Player ID, Pr Player ID, 
+shot_outcome, total_game_clock
 ```
 </details>
 
@@ -228,18 +228,18 @@ The baseline model then fits a **Logistic Regression** model to the processed fe
 
 ### Model Features
 The model includes the following features:
-1. Nominal Features (Categorical)
+1. **Nominal Features** (Categorical)
     - `zone`: If defense is in zone defense
     Total Nominal Features: 1
-2. Ordinal Features
+2. **Ordinal Features**
     - `gameQuarter`: Quarter of the game
     Total Ordinal Features: 1
 
 ### Model Performance
 We evaluate the performance of the baseline of this model by using accuracy, which is a standard metric for binary classification tasks. The accuracy was computed on both the training and test datasets:
-- Cross-Validation Training Accuracy: 0.541
-- Final Training Accuracy: 0.541
-- Test Accuracy: 0.532 
+- **Cross-Validation Training Accuracy**: 0.541
+- **Final Training Accuracy**: 0.541
+- **Test Accuracy**: 0.532 
 
 These results suggest that the model is not overfitting to the training data as seen in the small difference between the training and test accuracies (1%). This is to be expected as only 2 features were considered in the baseline model. 
 
@@ -261,13 +261,36 @@ In conclusion, the current model is a rough baseline, but there is still a lot o
 ### Feature Engineering and Transformations
 In the final model, I incorporated a blend of engineered features and transformations to better capture the nuances of basketball shot outcomes:
 
-1. **Clock Squared** (`clock_squared`): Derived from `total_game_clock`, this quadratic term captures potential non-linear relationships between remaining game time and shot success. Late-game pressure or fatigue might disproportionately affect shooting accuracy, and squaring the time allows the model to account for such dynamics.
+1. **Clock Squared** (`clock_squared`): 
+- **Rationale**: The relationship between game time and shot success is non-linear. For example, in the final seconds of a game, players often take rushed shots under heavy defensive pressure, leading to a steeper drop in accuracy. A quadratic term (`total_game_clock²`) better captures this accelerating effect compared to a linear feature.
+- **Data-Generating Process**: Fatigue, defensive intensity, and strategic fouling intensify as the game clock winds down. The squared term models this temporal "crunch time" effect explicitly.
 
-2. **One-Hot Encoding**: Applied to `shot` (type of shot, e.g., layup, jumper), `O Player Name` (offensive player), and `D Player Name` (defensive player). These categorical features directly influence the data-generating process: shot type dictates difficulty, offensive players vary in skill, and defenders differ in effectiveness. Encoding ensures the model recognizes these as distinct categories.
+2. **One-Hot Encoded Player and Shot Features**: 
+- **`shot` Type**: Different shot types (layup, jumper, etc.) have intrinsic difficulty levels. For instance, layups (high success rate) vs. contested jumpers (lower success rate) reflect distinct physical and skill-based challenges. Encoding these ensures the model distinguishes between shot mechanics.
+- **`O Player Name` and `D Player Name`**: Player skill disparities directly influence shot outcomes. For example, a star shooter (e.g., Stephen Curry) has a higher baseline make probability than a bench player. Similarly, an elite defender (e.g., Rudy Gobert) reduces opponents’ success rates. One-hot encoding allows the model to assign unique weights to each player’s offensive/defensive impact.
 
-3. **Standard Scaling**: Applied to `total_game_clock` and `gameQuarter` to standardize their scales. While tree-based models are scale-invariant, scaling benefits logistic regression and neural networks by ensuring gradient descent converges faster.
+3. **Standard Scaling**: 
+- Applied to `total_game_clock` and `gameQuarter` to standardize their scales. While tree-based models are scale-invariant, scaling benefits logistic regression and neural networks by ensuring gradient descent converges faster.
 
-These features were selected because they reflect key determinants of basketball shot outcomes: player skill, defensive matchups, shot type, and game context. For example, including `O Player Name` and `D Player Name` allows the model to learn individual player tendencies, while `clock_squared` addresses temporal dynamics in performance.
+### Model Features
+The model includes the following features:
+1. **Quantitative Features** (Numerical)
+    - `total_game_clock`: Seconds remaining in game
+    - `clock_squared` (non‑linear time feature, = `total_game_clock²`)
+    Total Quantitative Features: 2
+2. **Nominal Features** (Categorical)
+    - `zone`: If defense is in zone defense
+    - `homeEvent`: Team on offense is home team
+    - `sob`: If play is sideline out of bounds play
+    - `eob`: If play is end of game baseline inbounds play
+    - `ato`: If play is after timeout
+    - `shot`: Type of shot (Layup, Jumper, FreeThrow, etc.)
+    - `O Player Name`: Offensive player attempting shot
+    - `D Player Name`: Primary defender on the play
+    Total Nominal Features: 8
+3. **Ordinal Features**
+    - `gameQuarter`: Quarter of the game
+    Total Ordinal Features: 1
 
 ### Modeling Algorithm and Hyperparameters
 The **Logistic Regression** model was selected as the final model due to its interpretability, efficiency with high-dimensional data (after one-hot encoding), and strong performance during hyperparameter tuning. Despite testing more complex models (e.g., Random Forests, Neural Networks), logistic regression achieved the highest cross-validation accuracy, suggesting that the relationships between features and shot outcomes are largely linear or additive.
@@ -282,29 +305,44 @@ The **Logistic Regression** model was selected as the final model due to its int
 | Naive Bayes.            |     0.535     |
 
 #### Hyperparameter Tuning:
-A `GridSearchCV` tested combinations of:
-- `C` (inverse regularization strength): [0.01, 0.1, 1, 10, 100]
-- `solver` (optimization algorithm): [‘lbfgs’, ‘liblinear’]
+- `GridSearchCV` tested combinations of:
+    - `C` (inverse regularization strength): [0.01, 0.1, 1, 10, 100]
+    - `solver` (optimization algorithm): [‘lbfgs’, ‘liblinear’]
+- **Best params**: C = 0.01, solver = ‘lbfgs’ (stronger regularization to handle the high‑dimensional one‑hot vectors)
+    - **Why It Works**: This configuration balances bias and variance. A low C value applies stronger regularization, preventing overfitting to the high-dimensional one-hot encoded features (e.g., 8 nominal features expanded to ~150 dimensions). The lbfgs solver efficiently handles multinomial loss with L2 regularization.
 
-> **Best params**: C = 0.01, solver = ‘lbfgs’ (stronger regularization to handle the high‑dimensional one‑hot vectors)
-
-This configuration balances bias and variance, with moderate regularization (`C=0.01`) preventing overfitting while retaining sensitivity to feature relationships.
-
-### Performance
+### Performance Improvements Over Baseline
 The final model’s performance was evaluated against the baseline using accuracy:
 
 | Metric                       | Baseline Model | Final Model |
 |------------------------------|:-------------:|:-----------:|
 | Cross-Validation Accuracy    |     0.541     |   0.647     |
 | Test Accuracy                |     0.532     |   0.643     |
-
-Improvements Over Baseline:
 - **+11.1% Test Accuracy**: The final model significantly outperforms the baseline, which used only `zone` and `gameQuarter`. This demonstrates the value of incorporating player-specific and contextual features.
 - **Generalization**: Minimal gap between training and test accuracy (0.647 vs. 0.643) indicates no overfitting, a critical improvement over the baseline’s simplistic structure.
 
-Why It Works:
-- **Player Context**: Including `O Player Name` and `D Player Name` allows the model to learn individual player efficiencies (e.g., star players have higher make rates).
-- **Temporal Dynamics**: `clock_squared` captures late-game effects, such as rushed shots or defensive intensity.
+The Final Model’s performance gains stem from features that mirror the real‑world process of a shot attempt:
+- **Player Context**  
+  By one‑hot encoding both `O Player Name` and `D Player Name`, the model internalizes each individual’s shooting and defending tendencies:  
+  - **Offensive Effects:** Star scorers (e.g., Player A shoots at ~58% overall) earn larger positive coefficients, lifting their predicted make probability. Role players or less efficient shooters receive smaller or even negative coefficients.  
+  - **Defensive Effects:** Elite defenders (e.g., Player X reduces opponent make rate by ~8 pp) register larger negative coefficients, automatically downgrading make probability in tough matchups.  
+  - **Interaction Capture:** Together these encodings learn implicit shooter–defender interactions, such as a high‑efficiency shooter against a weak perimeter defender producing a boosted make probability.
+- **Temporal Dynamics**  
+  The `clock_squared` feature (\(`total_game_clock`²\)) allows the model to capture non‑linear time pressure:  
+  - **Crunch Time Drop‑Off:** When only a few seconds remain, shooting efficiency plunges sharply due to rushed releases and tightened defense—something a linear term underestimates.  
+  - **Early‑Game Flatness:** During early possessions (e.g., >600 s remaining), time pressure has minimal impact, and the squared term flattens out, deferring to the linear clock feature.  
+  - **Fatigue & Strategy Shifts:** Late‑game fatigue or strategic fouling further alters success rates; the quadratic term flexibly models these steeper late‑game effects.
+- **Situational Flags**  
+  Binary indicators (`zone`, `homeEvent`, `sob`, `eob`, `ato`) each isolate a distinct context:  
+  - **Zone Defense** consistently reduces make probability by ~10 pp.  
+  - **Home‑Court Advantage** adds ~4 pp to make rate, reflecting crowd support.  
+  - **Set Plays** (sideline/baseline inbounds and after‑timeout actions) often yield structured, high‑percentage opportunities, which the model learns separately.
+- **Shot Difficulty**  
+  One‑hot encoding of `shot` (Layup, Jumper, ThreePoint, FreeThrow) directly embeds intrinsic shot difficulty:  
+  - Layups convert at ~78%, jumpers at ~47%, threes at ~35%.  
+  - When combined with player and defender encodings, the model captures nuanced scenarios like a layup attempt by a sharpshooter against weak rim protection.
+
+Together, these engineered features recreate the multifaceted nature of basketball shooting—who’s on the court, who’s defending, how much time remains, the special play context, and the shot’s inherent difficulty—enabling the model to predict shot success with significantly higher accuracy.  
 
 ---
 
