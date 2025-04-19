@@ -76,12 +76,12 @@ To ensure the dataset was suitable for analysis and accurately represented the u
 
 The head of the cleaned DataFrame is shown below, highlighting the transformed and newly added columns:
 | shot_outcome | zone  | total_game_clock | gameQuarter | homeEvent | sob   | eob   | ato   | shot   | O Player Name  | D Player Name    |
-|--------------|-------|------------------|-------------|-----------|-------|-------|-------|--------|----------------|------------------|
-| Miss         | False | 2371             | 1           | False     | False | False | True  | Layup  | Ismael Romero  | —                |
+|:-------------|------:|-----------------:|------------:|----------:|------:|------:|------:|-------:|---------------:|-----------------:|
+| Miss         | False | 2371             | 1           | False     | False | False | True  | Layup  | Ismael Romero  | NaN              |
 | Miss         | False | 2358             | 1           | False     | False | False | False | Jumper | Tony Bishop    | Emmitt Williams  |
 | Miss         | False | 2344             | 1           | True      | False | False | True  | Jumper | Ismael Cruz    | Javier Mojica    |
-| Miss         | False | 2299             | 1           | True      | False | False | False | Jumper | Julian Torres  | —                |
-| Miss         | False | 2292             | 1           | False     | False | False | False | Jumper | Quinn Cook     | —                |
+| Miss         | False | 2299             | 1           | True      | False | False | False | Jumper | Julian Torres  | NaN              |
+| Miss         | False | 2292             | 1           | False     | False | False | False | Jumper | Quinn Cook     | NaN              |
 
 <details>
 <summary>Full Table Structure (Click to Expand)</summary>
@@ -297,7 +297,7 @@ The **Logistic Regression** model was selected as the final model due to its int
 
 **Model Comparison**
 | Model                   |  CV Accuracy  |
-|-------------------------|:-------------:|
+|:------------------------|--------------:|
 | Logistic Regression     |     0.647     |
 | KNN                     |     0.555     |
 | Random Forest           |     0.651     |
@@ -315,9 +315,10 @@ The **Logistic Regression** model was selected as the final model due to its int
 The final model’s performance was evaluated against the baseline using accuracy:
 
 | Metric                       | Baseline Model | Final Model |
-|------------------------------|:-------------:|:-----------:|
-| Cross-Validation Accuracy    |     0.541     |   0.647     |
-| Test Accuracy                |     0.532     |   0.643     |
+|:-----------------------------|---------------:|------------:|
+| Cross-Validation Accuracy    |     0.541      |   0.647     |
+| Test Accuracy                |     0.532      |   0.643     |
+
 - **+11.1% Test Accuracy**: The final model significantly outperforms the baseline, which used only `zone` and `gameQuarter`. This demonstrates the value of incorporating player-specific and contextual features.
 - **Generalization**: Minimal gap between training and test accuracy (0.647 vs. 0.643) indicates no overfitting, a critical improvement over the baseline’s simplistic structure.
 
@@ -352,29 +353,33 @@ Together, these engineered features recreate the multifaceted nature of basketba
 To further improve the predictive power and practical utility of the shot success model, the following directions could be explored:
 
 1. **Feature Expansion**
-- **Player-Specific Metrics**:
-    - Incorporate historical player statistics (e.g., offensive player’s career shooting percentage, defender’s block/steal rates). For example, a feature like `O_Player_Career_3P%` would contextualize a shooter’s skill.
-    - Add **defensive metrics** (e.g., defender’s average contest rate, height differential between offensive and defensive players).
-- **Spatial Context**:
-    - Integrate **shot location data** (e.g., distance from the basket, left/right side of the court) to capture geometric patterns in shooting efficiency.
-    - Use **player tracking data** (e.g., speed, defender proximity at shot release) to quantify defensive pressure.
-- **Temporal and Situational Features**:
-    - Include **fatigue indicators** (e.g., minutes played by the shooter in the game, days since last game).
-    - Model **momentum effects** (e.g., rolling averages of team shooting success over the last 5 possessions).
+  - **Player-Specific Metrics**:
+      - Incorporate historical player statistics (e.g., offensive player’s career shooting percentage, defender’s block/steal rates). For example, a feature like `O_Player_Career_3P%` would contextualize a shooter’s skill.
+      - Add **defensive metrics** (e.g., defender’s average contest rate, height differential between offensive and defensive players).
+
+  - **Spatial Context**:
+      - Integrate **shot location data** (e.g., distance from the basket, left/right side of the court) to capture geometric patterns in shooting efficiency.
+      - Use **player tracking data** (e.g., speed, defender proximity at shot release) to quantify defensive pressure.
+
+  - **Temporal and Situational Features**:
+      - Include **fatigue indicators** (e.g., minutes played by the shooter in the game, days since last game).
+      - Model **momentum effects** (e.g., rolling averages of team shooting success over the last 5 possessions).
 
 2. **Interpretability and Actionability**
-- **Explainability Tools**:
-    - Apply SHAP (SHapley Additive exPlanations) or LIME to interpret model predictions and identify key drivers of shot success (e.g., "Defender proximity contributes -15% to make probability").
-    - Use **partial dependence plots** to visualize how features like `total_game_clock` non-linearly affect outcomes.
-- **Deployment for Real-Time Use**:
-    - Build a dashboard for coaches to input situational variables (e.g., defender, shot type) and receive real-time success probabilities.
-    - Simulate "what-if" scenarios (e.g., "How does substituting Player X affect shot success against Zone Defense?").
+  - **Explainability Tools**:
+      - Apply SHAP (SHapley Additive exPlanations) or LIME to interpret model predictions and identify key drivers of shot success (e.g., "Defender proximity contributes -15% to make probability").
+      - Use **partial dependence plots** to visualize how features like `total_game_clock` non-linearly affect outcomes.
+
+  - **Deployment for Real-Time Use**:
+      - Build a dashboard for coaches to input situational variables (e.g., defender, shot type) and receive real-time success probabilities.
+      - Simulate "what-if" scenarios (e.g., "How does substituting Player X affect shot success against Zone Defense?").
 
 3. Ethical and Practical Validation
-- **Bias Auditing**:
-    - Check for fairness across player demographics (e.g., does the model undervalue shots from rookies or overvalue star players?).
-    - Validate that recommendations align with basketball ethics (e.g., avoiding over-reliance on risky shot types).
-- **On-Court Testing**:
-    - Partner with teams to A/B test model-driven strategies (e.g., comparing actual vs. predicted outcomes in controlled scenarios). 
+  - **Bias Auditing**:
+      - Check for fairness across player demographics (e.g., does the model undervalue shots from rookies or overvalue star players?).
+      - Validate that recommendations align with basketball ethics (e.g., avoiding over-reliance on risky shot types).
+
+  - **On-Court Testing**:
+      - Partner with teams to A/B test model-driven strategies (e.g., comparing actual vs. predicted outcomes in controlled scenarios). 
 
 By integrating player-specific, situational, and temporal features, the final model captures the multifaceted nature of basketball shot outcomes, providing actionable insights for optimizing offensive strategies. By expanding features, refining models, and prioritizing interpretability, this analysis could evolve into a decision-support tool that bridges data science and basketball strategy. Future work should focus on closing the gap between predictive accuracy and actionable insights for players, coaches, and analysts.
