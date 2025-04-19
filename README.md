@@ -75,6 +75,7 @@ To ensure the dataset was suitable for analysis and accurately represented the u
 ### Cleaned DataFrame Snapshot:
 
 The head of the cleaned DataFrame is shown below, highlighting the transformed and newly added columns:
+
 | shot_outcome | zone  | total_game_clock | gameQuarter | homeEvent | sob   | eob   | ato   | shot   | O Player Name  | D Player Name    |
 |:-------------|------:|-----------------:|------------:|----------:|------:|------:|------:|-------:|---------------:|-----------------:|
 | Miss         | False | 2371             | 1           | False     | False | False | True  | Layup  | Ismael Romero  | NaN              |
@@ -296,6 +297,7 @@ The model includes the following features:
 The **Logistic Regression** model was selected as the final model due to its interpretability, efficiency with high-dimensional data (after one-hot encoding), and strong performance during hyperparameter tuning. Despite testing more complex models (e.g., Random Forests, Neural Networks), logistic regression achieved the highest cross-validation accuracy, suggesting that the relationships between features and shot outcomes are largely linear or additive.
 
 **Model Comparison**
+
 | Model                   |  CV Accuracy  |
 |:------------------------|--------------:|
 | Logistic Regression     |     0.647     |
@@ -352,11 +354,10 @@ Together, these engineered features recreate the multifaceted nature of basketba
 **Future Work**:
 To further improve the predictive power and practical utility of the shot success model, the following directions could be explored:
 
-1. **Feature Expansion**
+- **Feature Expansion**
   - **Player-Specific Metrics**:
       - Incorporate historical player statistics (e.g., offensive player’s career shooting percentage, defender’s block/steal rates). For example, a feature like `O_Player_Career_3P%` would contextualize a shooter’s skill.
       - Add **defensive metrics** (e.g., defender’s average contest rate, height differential between offensive and defensive players).
-
   - **Spatial Context**:
       - Integrate **shot location data** (e.g., distance from the basket, left/right side of the court) to capture geometric patterns in shooting efficiency.
       - Use **player tracking data** (e.g., speed, defender proximity at shot release) to quantify defensive pressure.
@@ -365,7 +366,7 @@ To further improve the predictive power and practical utility of the shot succes
       - Include **fatigue indicators** (e.g., minutes played by the shooter in the game, days since last game).
       - Model **momentum effects** (e.g., rolling averages of team shooting success over the last 5 possessions).
 
-2. **Interpretability and Actionability**
+- **Interpretability and Actionability**
   - **Explainability Tools**:
       - Apply SHAP (SHapley Additive exPlanations) or LIME to interpret model predictions and identify key drivers of shot success (e.g., "Defender proximity contributes -15% to make probability").
       - Use **partial dependence plots** to visualize how features like `total_game_clock` non-linearly affect outcomes.
@@ -374,7 +375,7 @@ To further improve the predictive power and practical utility of the shot succes
       - Build a dashboard for coaches to input situational variables (e.g., defender, shot type) and receive real-time success probabilities.
       - Simulate "what-if" scenarios (e.g., "How does substituting Player X affect shot success against Zone Defense?").
 
-3. Ethical and Practical Validation
+- Ethical and Practical Validation
   - **Bias Auditing**:
       - Check for fairness across player demographics (e.g., does the model undervalue shots from rookies or overvalue star players?).
       - Validate that recommendations align with basketball ethics (e.g., avoiding over-reliance on risky shot types).
